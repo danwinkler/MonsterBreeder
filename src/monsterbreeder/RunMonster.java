@@ -13,7 +13,7 @@ import com.danwink.java.rpg.Map;
 import com.danwink.java.rpg.MapFileHelper;
 import com.danwink.java.rpg.MapObject;
 import com.danwink.java.rpg.MapObject.Face;
-import com.danwink.java.rpg.TileConfig;
+import com.danwink.java.rpg.Tileset;
 import com.phyloa.dlib.renderer.Graphics2DRenderer;
 import com.phyloa.dlib.util.DGraphics;
 
@@ -33,9 +33,8 @@ public class RunMonster extends Graphics2DRenderer
 		
 		try {
 			map = MapFileHelper.loadMap( new File( "maps/map1.xml" ) );
-			TileConfig tc = MapFileHelper.loadTileConfig( new File( map.configFile ) );
-			map.autoTiles = tc.autoTiles;
-			map.tileset = tc.tileset;
+			Tileset tc = MapFileHelper.loadTileConfig( new File( map.configFile ) );
+			map.setTileset( tc );
 		} catch (DocumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
