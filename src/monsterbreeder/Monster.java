@@ -27,6 +27,8 @@ public class Monster
 	
 	String name;
 	
+	String[] moves;
+	
 	public void renderFront( Graphics2D g2 )
 	{
 		BufferedImageOp imageFilter = new ColorTintFilter( new Color( r, g, b ), .5f );
