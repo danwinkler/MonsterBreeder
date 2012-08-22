@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<game>
+	<maps>
+		<map>insideislandhome1</map>
+		<map>test1</map></maps>
+	<firstmap x="15" y="15">insideislandhome1</firstmap></game>
