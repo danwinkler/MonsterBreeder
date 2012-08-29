@@ -8,7 +8,7 @@ import java.util.Collections;
 
 import javax.vecmath.Point3i;
 
-import monsterbreeder.Monster.Side;
+import monsterbreeder.MonsterOld2.Side;
 
 public class MonsterRenderer 
 {

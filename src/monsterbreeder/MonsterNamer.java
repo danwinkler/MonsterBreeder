@@ -3,7 +3,7 @@ package monsterbreeder;
 import java.util.HashMap;
 import java.util.Random;
 
-import monsterbreeder.Monster.Energy;
+import monsterbreeder.MonsterOld2.Energy;
 public class MonsterNamer 
 {
 	static HashMap<Energy, String[]> ePrefs = new HashMap<Energy, String[]>();
@@ -26,7 +26,7 @@ public class MonsterNamer
 	static String[] wingSuf = { "bird", "sky" };
 	static String[] leg0Suf = { "ball", "worm" };
 	
-	public static String getName( Monster m )
+	public static String getName( MonsterOld2 m )
 	{
 		String[] prefs = ePrefs.get( m.type );
 		boolean hasWings = false;

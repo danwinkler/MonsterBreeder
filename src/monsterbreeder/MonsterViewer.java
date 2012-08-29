@@ -1,6 +1,7 @@
 package monsterbreeder;
 
-import monsterbreeder.Monster.Energy;
+import monsterbreeder.MonsterOld2.Energy;
+import monsterbreeder.monster.Monster;
 
 import com.phyloa.dlib.renderer.Graphics2DRenderer;
 
@@ -10,8 +11,6 @@ public class MonsterViewer extends Graphics2DRenderer
 	
 	public void initialize() 
 	{
-		m = Monster.generate( 1 );
-		
 		size( 800, 600 );
 	}
 
@@ -22,17 +21,13 @@ public class MonsterViewer extends Graphics2DRenderer
 		
 		scale( 4, 4 );
 		
-		drawImage( m.front, 0, 0 );
-		drawImage( m.side, 50, 0 );
-		drawImage( m.back, 100, 0 );
-		
-		color( 0, 0, 0 );
-		text( m.name, 10, 60 );
+		//drawImage( m.front, 0, 0 );
+		//drawImage( m.side, 50, 0 );
+		//drawImage( m.rear, 100, 0 );
 		
 		if( k.space )
 		{
 			k.space = false;
-			m = Monster.generate( (long) (Math.random() * Long.MAX_VALUE) );
 		}
 		
 		for( int i = 0; i < Energy.values().length; i++ )

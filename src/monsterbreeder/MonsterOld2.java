@@ -13,7 +13,7 @@ import javax.vecmath.Point3i;
 import com.phyloa.dlib.util.DGraphics;
 import com.phyloa.dlib.util.DMath;
 
-public class Monster 
+public class MonsterOld2 
 {
 	Body body;
 	Head head;
@@ -125,9 +125,9 @@ public class Monster
 		MonsterRenderer.clear();
 	}
 	
-	public static Monster generate( long seed )
+	public static MonsterOld2 generate( long seed )
 	{
-		Monster m = new Monster();
+		MonsterOld2 m = new MonsterOld2();
 		Random r = new Random( seed );
 		m.body = Body.getRandom( r );
 		m.head = Head.getRandom( r );
@@ -182,9 +182,9 @@ public class Monster
 		return m;
 	}
 
-	public static Monster breed( Monster ped, Monster alt )
+	public static MonsterOld2 breed( MonsterOld2 ped, MonsterOld2 alt )
 	{
-		Monster m = new Monster();
+		MonsterOld2 m = new MonsterOld2();
 		Random r = new Random();
 		
 		
