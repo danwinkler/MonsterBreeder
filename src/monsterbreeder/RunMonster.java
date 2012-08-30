@@ -76,13 +76,8 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 		
 		LuaInterface.setup( this );
 		
-		try {
-			player = new MapObject( map, DFile.loadImage( "Characters/001-Fighter01.png" ), 0, 0 );
-			player.addTileArriveListener( this );
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		player = new MapObject( map, TextureHandler.get( "Characters/001-Fighter01.png" ), 0, 0 );
+		player.addTileArriveListener( this );
 		
 		try {
 			ConfigLoader.loadConfig( this, "game.xml" );
@@ -114,10 +109,10 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 				{
 					for( TileEvent e : map.events )
 					{
-						String name = map.name + e.xTile + "," + e.yTile;
+						String name = e.toString();
+						LuaInterface.prepare( e );
 						lr.add( name, e.code );
 						lr.run( name );
-						LuaInterface.prepare( e );
 						lr.run( "ontick" );
 					}
 				}
@@ -125,6 +120,19 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 			
 			if( gui.elestack.size() == 0 )
 			{
+				if( k.space )
+				{
+					k.space = false;
+					TileEvent te = map.getEvent( player.xTile + player.facing.x, player.yTile + player.facing.y );
+					if( te != null )
+					{
+						String name = te.toString();
+						LuaInterface.prepare( te );
+						lr.add( name, te.code );
+						lr.run( name );
+						lr.run( "onenter" );
+					}
+				}
 				if( k.up || k.w )
 				{
 					player.move( Face.NORTH );
@@ -148,7 +156,7 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 				}
 			}
 			
-			player.update( time );
+			map.update( time, mos );
 			
 			if( opacity != destOpac )
 			{
@@ -205,10 +213,10 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 	{
 		for( TileEvent e : m.events )
 		{
-			String name = m.name + e.xTile + "," + e.yTile;
+			String name = e.toString();
+			LuaInterface.prepare( e );
 			lr.add( name, e.code );
 			lr.run( name );
-			LuaInterface.prepare( e );
 			lr.run( "onload" );
 		}
 		setNight();
@@ -283,18 +291,19 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 		TileEvent te = map.getEvent( mo.xTile, mo.yTile );
 		if( te != null && mo == player )
 		{
-			lr.run( map.name + te.xTile + "," + te.yTile );
 			LuaInterface.prepare( te );
+			lr.run( te.toString() );
 			lr.run( "onstep" );		
 		}
 		if( mo == player )
 		{
-			for( TileEvent e : map.events )
+			for( int i = 0; i < map.events.size(); i++ )
 			{
-				String name = map.name + e.xTile + "," + e.yTile;
+				TileEvent e = map.events.get( i );
+				String name = e.toString();
+				LuaInterface.prepare( e );
 				lr.add( name, e.code );
 				lr.run( name );
-				LuaInterface.prepare( te );
 				lr.run( "onmove" );
 			} 
 		}

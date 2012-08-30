@@ -1,21 +1,24 @@
 package monsterbreeder;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.script.ScriptException;
 
+import monsterbreeder.GUI.SelectBox;
 import monsterbreeder.GUI.Textbox;
 
 import org.dom4j.DocumentException;
 
 import com.danwink.java.rpg.Map;
 import com.danwink.java.rpg.Map.TileEvent;
+import com.danwink.java.rpg.MapObject.Face;
 import com.phyloa.dlib.lua.DLua;
 
 public class LuaInterface 
 {
 	static RunMonster rm;
-	private static TileEvent te;
+	private static HashMap<String, TileEvent> te = new HashMap<String, TileEvent>();
 	
 	public static void setup( RunMonster rm )
 	{
@@ -27,9 +30,29 @@ public class LuaInterface
 				"function showtext( text ) \n" +
 				"li:showText( text ) \n" +
 				"end \n" +
+				"function showchoice( text, ... ) \n" +
+				"local num = select( '#', ... )\n" +
+				"if (num == 2) then return li:showChoice( text, select( 1, ... ), select( 2, ... ) )\n" +
+				"elseif (num == 3) then return li:showChoice( text, select( 1, ... ), select( 2, ... ), select( 3, ... ) )\n" +
+				"elseif (num == 4) then return li:showChoice( text, select( 1, ... ), select( 2, ... ), select( 3, ... ), select( 4, ... ) ) end\n" +
+				"end\n" +
 				"function fadeto( r, g, b, dest, speed )\n" +
 				"li:fadeto( r, g, b, dest, speed )\n" +
-				"end" );
+				"end\n" +
+				"function setsprite( name ) \n" +
+				"li:setSprite( name, en )\n" +
+				"end\n" +
+				"function setpassable( passable )\n" +
+				"li:setPassable( passable, en )\n" +
+				"end\n" +
+				"function faceplayer()\n" +
+				"li:facePlayer( en )\n" +
+				"end\n" +
+				"function up() li:up( en ) end\n" +
+				"function down() li:down( en ) end\n" +
+				"function left() li:left( en ) end\n" +
+				"function right() li:right( en ) end\n" 
+				);
 		rm.lr.run( "setup" );
 		rm.lr.add( "clear", 
 				"onstep = nil\n" +
@@ -63,6 +86,85 @@ public class LuaInterface
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public static int showChoice( String text, String choice1, String choice2 )
+	{
+		return showChoiceA( text, choice1, choice2 );
+	}
+	
+	public static int showChoice( String text, String choice1, String choice2, String choice3 )
+	{
+		return showChoiceA( text, choice1, choice2, choice3 );
+	}
+	
+	public static int showChoice( String text, String choice1, String choice2, String choice3, String choice4 )
+	{
+		return showChoiceA( text, choice1, choice2, choice3, choice4 );
+	}
+	
+	public static int showChoiceA( String text, String... choices )
+	{
+		if( rm.debug )
+		{
+			System.out.println( "from lua: showChoice( \"" + text.replaceAll( "\n", "(newline)" ) + "\" ) " );
+			for( int i = 0; i < choices.length; i++ )
+			{
+				System.out.println( choices[i] );
+			}
+		}
+		SelectBox tb = rm.gui.new SelectBox( text, choices );
+		rm.gui.pushElement( tb );
+		while( tb.alive )
+		{
+			try {
+				Thread.sleep( 15 );
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return tb.choice;
+	}
+	
+	public static void setSprite( String name, String event )
+	{
+		te.get( event ).setImage( TextureHandler.get( "Characters/" + name ) );
+	}
+	
+	public static void setPassable( boolean passable, String event )
+	{
+		te.get( event ).passable = passable;
+	}
+	
+	public static void facePlayer( String event )
+	{
+		te.get( event ).face( rm.player );
+	}
+	
+	public static float random()
+	{
+		return (float)Math.random();
+	}
+	
+	public static void up( String event )
+	{
+		te.get( event ).move( Face.NORTH );
+	}
+	
+	public static void down( String event )
+	{
+		te.get( event ).move( Face.SOUTH );
+	}
+	
+	public static void left( String event )
+	{
+		te.get( event ).move( Face.WEST );
+	}
+	
+	public static void right( String event )
+	{
+		te.get( event ).move( Face.EAST );
 	}
 	
 	public static void teleport( String name, int x, int y, String face )
@@ -164,8 +266,11 @@ public class LuaInterface
 	}
 
 	public static void prepare( TileEvent te )
-	{
-		LuaInterface.te = te;
+	{	
+		rm.lr.run( "clear" ); 
+		rm.lr.add( te.toString()+"setup", "en = '" + te.toString() + "'\n" );
+		rm.lr.run( te.toString()+"setup" );
+		LuaInterface.te.put( te.toString(), te );
 	}
 	
 	
