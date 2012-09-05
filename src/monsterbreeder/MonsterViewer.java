@@ -1,9 +1,13 @@
 package monsterbreeder;
 
+import java.io.IOException;
+
 import monsterbreeder.MonsterOld2.Energy;
 import monsterbreeder.monster.Monster;
+import monsterbreeder.monster.MonsterBuilder;
 
 import com.phyloa.dlib.renderer.Graphics2DRenderer;
+import com.phyloa.dlib.util.DFile;
 
 public class MonsterViewer extends Graphics2DRenderer
 {
@@ -12,18 +16,25 @@ public class MonsterViewer extends Graphics2DRenderer
 	public void initialize() 
 	{
 		size( 800, 600 );
+		m = MonsterBuilder.generateMonster( (int)(Math.random() * Integer.MAX_VALUE) );
 	}
 
 	public void update()
 	{
+		if( k.space )
+		{
+			k.space = false;
+			m = MonsterBuilder.generateMonster( (int)(Math.random() * Integer.MAX_VALUE) );
+		}
 		color( 255, 255, 255 );
 		fillRect( 0, 0, this.getWidth(), this.getHeight() );
 		
 		scale( 4, 4 );
 		
-		//drawImage( m.front, 0, 0 );
-		//drawImage( m.side, 50, 0 );
-		//drawImage( m.rear, 100, 0 );
+		pushMatrix();
+		translate( 20, 20 );
+		g.drawImage( m.getFront(), 0, 0, null );
+		popMatrix();
 		
 		if( k.space )
 		{
@@ -40,7 +51,7 @@ public class MonsterViewer extends Graphics2DRenderer
 		}
 	}
 	
-	public static void main( String[] args )
+	public static void main( String[] args ) throws IOException
 	{
 		MonsterViewer mv = new MonsterViewer();
 		mv.begin();

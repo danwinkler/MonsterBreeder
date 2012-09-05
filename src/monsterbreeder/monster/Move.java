@@ -1,6 +1,6 @@
 package monsterbreeder.monster;
 
-public class Move 
+public class Move
 {
-	String name;
+	String move;
 }

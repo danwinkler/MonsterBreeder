@@ -50,8 +50,13 @@ public class ConfigLoader
 		for( Node n : partsList )
 		{
 			PartSpec p = new PartSpec();
-			p.name = n.selectSingleNode( "name" ).getName();
-			p.type = PartType.get( n.selectSingleNode( "type" ).getName() );
+			p.name = n.selectSingleNode( "name" ).getText();
+			p.type = PartType.get( n.selectSingleNode( "type" ).getText() );
+			Node base = n.selectSingleNode( "base" );
+			int x = Integer.parseInt( base.selectSingleNode( "x" ).getText() );
+			int y = Integer.parseInt( base.selectSingleNode( "y" ).getText() );
+			int z = Integer.parseInt( base.selectSingleNode( "z" ).getText() );
+			p.base = new Point3i( x, y, z );
 			
 			Node front = n.selectSingleNode( "front" );
 			if( front != null )
@@ -71,30 +76,35 @@ public class ConfigLoader
 				p.rear = TextureHandler.get( rear.getText() );
 			}
 			
-			List<? extends Node> attachList = n.selectSingleNode( "attaches" ).selectNodes( "attach" );
-			if( attachList != null )
+			Node attachesNode = n.selectSingleNode( "attaches" );
+			if( attachesNode != null )
 			{
-				for( int i = 0; i < attachList.size(); i++ )
+				List<? extends Node> attachList = attachesNode.selectNodes( "attach" );
+				if( attachList != null )
 				{
-					Node m = attachList.get( i );
-					AttachSpec a = new AttachSpec();
-					a.p = new Point3i();
-					a.p.x = Integer.parseInt( m.selectSingleNode( "x" ).getText() );
-					a.p.y = Integer.parseInt( m.selectSingleNode( "y" ).getText() );
-					a.p.z = Integer.parseInt( m.selectSingleNode( "z" ).getText() );
-					Node allowNode = m.selectSingleNode( "allow" );
-					if( allowNode != null )
+					for( int i = 0; i < attachList.size(); i++ )
 					{
-						String[] allowed = allowNode.getText().split( "," );
-						a.allowPartType = new PartType[allowed.length];
-						for( int j = 0; j < allowed.length; j++ )
+						Node m = attachList.get( i );
+						AttachSpec a = new AttachSpec();
+						a.p = new Point3i();
+						a.p.x = Integer.parseInt( m.selectSingleNode( "x" ).getText() );
+						a.p.y = Integer.parseInt( m.selectSingleNode( "y" ).getText() );
+						a.p.z = Integer.parseInt( m.selectSingleNode( "z" ).getText() );
+						Node allowNode = m.selectSingleNode( "allow" );
+						if( allowNode != null )
 						{
-							a.allowPartType[j] = PartType.get( allowed[j] );
+							String[] allowed = allowNode.getText().split( "," );
+							a.allowPartType = new PartType[allowed.length];
+							for( int j = 0; j < allowed.length; j++ )
+							{
+								a.allowPartType[j] = PartType.get( allowed[j] );
+							}
 						}
+						p.attaches.add( a );
 					}
-					p.attaches.add( a );
 				}
 			}
+			parts.add( p );
 		}
 	}
 }
