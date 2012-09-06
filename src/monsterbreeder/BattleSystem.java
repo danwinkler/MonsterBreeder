@@ -1,59 +1,54 @@
 package monsterbreeder;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics2D;
+import java.io.File;
+import java.io.IOException;
+
+import monsterbreeder.monster.Monster;
 
 public class BattleSystem 
 {	
-	MonsterBattleWrapper m1;
-	MonsterBattleWrapper m2;
+	static Font font;
+	Monster m1;
+	Monster m2;
 	
-	public void start( MonsterOld2 mm1, MonsterOld2 mm2 )
+	static {
+		try {
+			font = Font.createFont( Font.TRUETYPE_FONT, new File( "04B_03__.TTF" ) );
+		} catch (FontFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void start( Monster m1, Monster m2 )
 	{
-		this.m1 = new MonsterBattleWrapper( mm1 );
-		this.m2 = new MonsterBattleWrapper( mm2 );
-		m1.x = 100;
+		this.m1 = m1;
+		this.m2 = m2;
 	}
 	
 	public void update()
 	{
-		m1.update();
-		m2.update();
+		
 	}
 	
 	public void render( Graphics2D g )
 	{
-		if( m1.y > m2.y )
-		{
-			m1.render( g );
-			m2.render( g );
-		} else
-		{
-			m2.render( g );
-			m1.render( g );
-		}
-	}
-	
-	class MonsterBattleWrapper
-	{
-		MonsterOld2 m;
-		float x;
-		float y;
-		float dx;
-		float dy;
+		g.setColor( Color.WHITE );
+		g.fillRect( 0, 0, 200, 150 );
 		
-		public MonsterBattleWrapper( MonsterOld2 m )
-		{
-			this.m = m;
-		}
-
-		public void update() 
-		{
-			
-		}
+		g.setFont( font.deriveFont( 8.f ) );
+		g.drawImage( m2.getFront(), 136, 0, null );
+		g.setColor( Color.BLACK );
+		g.drawString( m2.name, 145, 57 );
+		g.drawLine( 140, 60, 190, 60 );
 		
-		public void render( Graphics2D g )
-		{
-			
-		}
 	}
 }

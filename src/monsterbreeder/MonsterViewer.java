@@ -1,5 +1,6 @@
 package monsterbreeder;
 
+import java.awt.Font;
 import java.io.IOException;
 
 import monsterbreeder.MonsterOld2.Energy;
@@ -8,6 +9,9 @@ import monsterbreeder.monster.MonsterBuilder;
 
 import com.phyloa.dlib.renderer.Graphics2DRenderer;
 import com.phyloa.dlib.util.DFile;
+import com.phyloa.dlib.util.DMath;
+
+import monsterbreeder.monster.Type;
 
 public class MonsterViewer extends Graphics2DRenderer
 {
@@ -41,13 +45,21 @@ public class MonsterViewer extends Graphics2DRenderer
 			k.space = false;
 		}
 		
-		for( int i = 0; i < Energy.values().length; i++ )
+		g.setFont( new Font( "Consolas", Font.PLAIN, 4 ) );
+		
+		for( int i = 0; i < Type.values().length; i++ )
 		{
-			Energy e = Energy.values()[i];
+			Type e = Type.values()[i];
 			color( 0, 0, 0 );
-			fillRect( (20 + i * 20)-1, 100-1, 15+2, 15+2 );
+			fillRect( (i * 20)-1, 100-1, 15+2, 15+2 );
 			color( e.r, e.g, e.b );
-			fillRect( 20 + i * 20, 100, 15, 15 );
+			fillRect( i * 20, 100, 15, 15 );
+			color( 255 - e.r, 255 - e.g, 255 - e.b );
+			pushMatrix();
+			translate( i*20, 100 );
+			rotate( DMath.PIF * 1.5f );
+			text( e.name(), -15, 10 );
+			popMatrix();
 		}
 	}
 	

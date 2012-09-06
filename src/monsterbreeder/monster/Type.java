@@ -12,7 +12,8 @@ public enum Type
 	SHADOW( 30, 10, 50 ),
 	PLANT( 30, 150, 50 ),
 	LIFE( 235, 255, 255 ),
-	ARCANE( 100, 20, 150 );
+	ARCANE( 100, 20, 150 ),
+	NORMAL( 240, 190, 190);
 	
 	Type( int r, int g, int b )
 	{
@@ -21,7 +22,7 @@ public enum Type
 		this.b = b;
 	}
 	
-	int r, g, b;
+	 public int r, g, b;
 	
 	public static Type getRandom( Random r )
 	{

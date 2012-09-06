@@ -76,7 +76,7 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 		
 		LuaInterface.setup( this );
 		
-		player = new MapObject( map, TextureHandler.get( "Characters/main01.png" ), 0, 0 );
+		player = new MapObject( map, TextureHandler.get( "Characters/001-Fighter01.png" ), 0, 0 );
 		player.addTileArriveListener( this );
 		
 		try {

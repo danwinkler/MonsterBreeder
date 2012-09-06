@@ -24,14 +24,19 @@ import com.phyloa.dlib.util.DMath;
 
 public class Monster 
 {
-	Part body;
-	Type type;
-	ArrayList<Move> possibleMoves = new ArrayList<Move>();
-	Move[] moves = new Move[4];
+	public Part body;
 	
-	BufferedImage front;
-	BufferedImage side;
-	BufferedImage rear;
+	public BufferedImage front;
+	public BufferedImage side;
+	public BufferedImage rear;
+	
+	public Type type;
+	public ArrayList<Move> possibleMoves = new ArrayList<Move>();
+	public Move[] moves = new Move[4];
+	public int maxhp = 100;
+	public int hp = maxhp;
+	
+	public String name = "No Entry";
 	
 	public class Part
 	{
