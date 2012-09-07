@@ -17,13 +17,13 @@ import com.phyloa.dlib.lua.DLua;
 
 public class LuaInterface 
 {
-	static RunMonster rm;
+	static WorldScreen ws;
 	private static HashMap<String, TileEvent> te = new HashMap<String, TileEvent>();
 	
-	public static void setup( RunMonster rm )
+	public static void setup( WorldScreen worldScreen )
 	{
-		LuaInterface.rm = rm;
-		rm.lr.add( "setup", "li = luajava.bindClass( \"monsterbreeder.LuaInterface\" ) \n" +
+		LuaInterface.ws = worldScreen;
+		worldScreen.lr.add( "setup", "li = luajava.bindClass( \"monsterbreeder.LuaInterface\" ) \n" +
 				"function teleport( mapname, x, y, dir ) \n" +
 				"li:teleport( mapname, x, y, dir ) \n" +
 				"end \n" +
@@ -53,30 +53,30 @@ public class LuaInterface
 				"function left() li:left( en ) end\n" +
 				"function right() li:right( en ) end\n" 
 				);
-		rm.lr.run( "setup" );
-		rm.lr.add( "clear", 
+		worldScreen.lr.run( "setup" );
+		worldScreen.lr.add( "clear", 
 				"onstep = nil\n" +
 				"onload = nil\n" +
 				"onenter = nil\n" +
 				"ontick = nil\n" +
 				"onmove = nil\n" );
 		
-		rm.lr.add( "onload", "if (onload) then \n onload() \n end" );
-		rm.lr.add( "onstep", "if (onstep) then \n onstep() \n end" );
-		rm.lr.add( "onenter", "if (onenter) then \n onenter() \n end" );
-		rm.lr.add( "ontick", "if (ontick) then \n ontick() \n end" );
-		rm.lr.add( "onmove", "if (onmove) then \n onmove() \n end" );
+		worldScreen.lr.add( "onload", "if (onload) then \n onload() \n end" );
+		worldScreen.lr.add( "onstep", "if (onstep) then \n onstep() \n end" );
+		worldScreen.lr.add( "onenter", "if (onenter) then \n onenter() \n end" );
+		worldScreen.lr.add( "ontick", "if (ontick) then \n ontick() \n end" );
+		worldScreen.lr.add( "onmove", "if (onmove) then \n onmove() \n end" );
 		
 	}
 	
 	public static void showText( String text )
 	{
-		if( rm.debug )
+		if( ws.debug )
 		{
 			System.out.println( "from lua: showText( \"" + text.replaceAll( "\n", "(newline)" ) + "\" ) " );
 		}
-		Textbox tb = rm.gui.new Textbox( text );
-		rm.gui.pushElement( tb );
+		Textbox tb = ws.gui.new Textbox( text );
+		ws.gui.pushElement( tb );
 		while( tb.alive )
 		{
 			try {
@@ -105,7 +105,7 @@ public class LuaInterface
 	
 	public static int showChoiceA( String text, String... choices )
 	{
-		if( rm.debug )
+		if( ws.debug )
 		{
 			System.out.println( "from lua: showChoice( \"" + text.replaceAll( "\n", "(newline)" ) + "\" ) " );
 			for( int i = 0; i < choices.length; i++ )
@@ -113,8 +113,8 @@ public class LuaInterface
 				System.out.println( choices[i] );
 			}
 		}
-		SelectBox tb = rm.gui.new SelectBox( text, choices );
-		rm.gui.pushElement( tb );
+		SelectBox tb = ws.gui.new SelectBox( text, choices );
+		ws.gui.pushElement( tb );
 		while( tb.alive )
 		{
 			try {
@@ -139,7 +139,7 @@ public class LuaInterface
 	
 	public static void facePlayer( String event )
 	{
-		te.get( event ).face( rm.player );
+		te.get( event ).face( ws.player );
 	}
 	
 	public static float random()
@@ -169,15 +169,15 @@ public class LuaInterface
 	
 	public static void teleport( String name, int x, int y, String face )
 	{
-		synchronized( rm )
+		synchronized( ws )
 		{
-			if( rm.debug )
+			if( ws.debug )
 			{
 				System.out.println( "from lua: teleport( \"" + name + "\", " + x + ", " + y + ", \"" + face + "\" ) " );
 			}
-			rm.lr.run( "clear" );
+			ws.lr.run( "clear" );
 			try {
-				rm.loadMap( name, x, y, face );
+				ws.loadMap( name, x, y, face );
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -190,12 +190,12 @@ public class LuaInterface
 	
 	public static void fadeto( int r, int g, int b, float dest, float speed )
 	{
-		if( rm.debug )
+		if( ws.debug )
 		{
 			System.out.println( "from lua: fadeto( " + r + ", " + g + ", " + b + ", " + dest + ", " + speed + " ) " );
 		}
-		rm.fadeTo( r, g, b, dest, speed );
-		while( rm.opacity != rm.destOpac )
+		ws.fadeTo( r, g, b, dest, speed );
+		while( ws.opacity != ws.destOpac )
 		{
 			try {
 				Thread.sleep( 15 );
@@ -208,47 +208,47 @@ public class LuaInterface
 	
 	public static void setInt( String key, int value )
 	{
-		rm.dataStore.put( key, Integer.toString( value ) );
+		ws.rm.dataStore.put( key, Integer.toString( value ) );
 	}
 	
 	public static int getInt( String key )
 	{
-		return Integer.parseInt( rm.dataStore.get( key ) );
+		return Integer.parseInt( ws.rm.dataStore.get( key ) );
 	}
 	
 	public static void setFloat( String key, float value )
 	{
-		rm.dataStore.put( key, Float.toString( value ) );
+		ws.rm.dataStore.put( key, Float.toString( value ) );
 	}
 	
 	public static float getFloat( String key )
 	{
-		return Float.parseFloat( rm.dataStore.get( key ) );
+		return Float.parseFloat( ws.rm.dataStore.get( key ) );
 	}
 	
 	public static void setString( String key, String value )
 	{
-		rm.dataStore.put( key, value );
+		ws.rm.dataStore.put( key, value );
 	}
 	
 	public static String getString( String key )
 	{
-		return rm.dataStore.get( key );
+		return ws.rm.dataStore.get( key );
 	}
 	
 	public static void setBoolean( String key, boolean value )
 	{
-		if( rm.debug )
+		if( ws.debug )
 		{
 			System.out.println( "from lua: setBoolean( " + key + ", " + value + " ) " );
 		}
-		rm.dataStore.put( key, Boolean.toString( value ) );
+		ws.rm.dataStore.put( key, Boolean.toString( value ) );
 	}
 	
 	public static boolean getBoolean( String key )
 	{
-		String v = rm.dataStore.get( key );
-		if( rm.debug )
+		String v = ws.rm.dataStore.get( key );
+		if( ws.debug )
 		{
 			System.out.println( "from lua: getBoolean( " + key + " ) = " + v );
 		}
@@ -257,19 +257,19 @@ public class LuaInterface
 	
 	public static int getPlayerX()
 	{
-		return rm.player.xTile;
+		return ws.player.xTile;
 	}
 	
 	public static int getPlayerY()
 	{
-		return rm.player.yTile;
+		return ws.player.yTile;
 	}
 
 	public static void prepare( TileEvent te )
 	{	
-		rm.lr.run( "clear" ); 
-		rm.lr.add( te.toString()+"setup", "en = '" + te.toString() + "'\n" );
-		rm.lr.run( te.toString()+"setup" );
+		ws.lr.run( "clear" ); 
+		ws.lr.add( te.toString()+"setup", "en = '" + te.toString() + "'\n" );
+		ws.lr.run( te.toString()+"setup" );
 		LuaInterface.te.put( te.toString(), te );
 	}
 	

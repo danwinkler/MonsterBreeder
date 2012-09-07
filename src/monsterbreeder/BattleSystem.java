@@ -7,9 +7,13 @@ import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
 
+import com.phyloa.dlib.renderer.DScreen;
+import com.phyloa.dlib.renderer.Graphics2DRenderer;
+import com.phyloa.dlib.util.KeyHandler;
+
 import monsterbreeder.monster.Monster;
 
-public class BattleSystem 
+public class BattleSystem implements DScreen<RunMonster>
 {	
 	static Font font;
 	Monster m1;
@@ -34,9 +38,9 @@ public class BattleSystem
 		this.m2 = m2;
 	}
 	
-	public void update()
+	public void update( RunMonster e )
 	{
-		
+		render( e.g2 );
 	}
 	
 	public void render( Graphics2D g )
@@ -48,7 +52,6 @@ public class BattleSystem
 		g.drawImage( m2.getFront(), 136, 0, null );
 		g.setColor( Color.BLACK );
 		g.drawString( m2.name, 145, 57 );
-		g.drawLine( 140, 60, 190, 60 );
-		
+		g.drawLine( 140, 60, 190, 60 );	
 	}
 }

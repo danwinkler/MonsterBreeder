@@ -22,7 +22,7 @@ import com.danwink.java.rpg.MapFileHelper;
 
 public class ConfigLoader 
 {
-	public static void loadConfig( RunMonster rm, String file ) throws DocumentException, IOException
+	public static void loadConfig( WorldScreen rm, String file ) throws DocumentException, IOException
 	{
 		SAXReader reader = new SAXReader();
 		Document doc = reader.read( file );

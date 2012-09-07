@@ -25,43 +25,23 @@ import com.danwink.java.rpg.MapObject.TileArriveListener;
 import com.danwink.java.rpg.Tileset;
 import com.phyloa.dlib.lua.DLua;
 import com.phyloa.dlib.lua.DLuaRunner;
+import com.phyloa.dlib.renderer.DScreenHandler;
 import com.phyloa.dlib.renderer.Graphics2DRenderer;
 import com.phyloa.dlib.util.DFile;
 import com.phyloa.dlib.util.DGraphics;
 import com.phyloa.dlib.util.DMath;
 
-public class RunMonster extends Graphics2DRenderer implements TileArriveListener
+public class RunMonster extends Graphics2DRenderer
 {
 	HashMap<String, String> dataStore = new HashMap<String, String>();
-	HashMap<String, Map> maps = new HashMap<String, Map>();
-	HashMap<String, Tileset> tilesets = new HashMap<String, Tileset>();
-	
-	Map map;
-	
-	int time = 0;
 	
 	BufferedImage buffer;
 	int bufferx = 400;
 	int buffery = 300;
 	
-	MapObject player;
+	DScreenHandler<RunMonster> dsh;
 	
-	ArrayList<MapObject> mos = new ArrayList<MapObject>();
-	
-	DLuaRunner lr;
-	
-	GUI gui;
-	
-	int screenr;
-	int screeng;
-	int screenb;
-	float opacity = 0;
-	float deltaOpac = 0;
-	float destOpac = 0;
-	
-	boolean debug = true;
-	
-	boolean night = false;
+	Graphics2D g2;
 	
 	public void initialize()
 	{
@@ -70,156 +50,23 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 		createBuffer();
 		this.container.addComponentListener( new RunMonsterListener() );
 		
-		gui = new GUI();
-		
-		lr = new DLuaRunner();
-		
-		LuaInterface.setup( this );
-		
-		player = new MapObject( map, TextureHandler.get( "Characters/001-Fighter01.png" ), 0, 0 );
-		player.addTileArriveListener( this );
-		
-		try {
-			ConfigLoader.loadConfig( this, "game.xml" );
-		} catch (DocumentException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		mos.add( player );
-		setNight();
+		dsh = new DScreenHandler<RunMonster>();
+		dsh.register( "world", new WorldScreen( this ) );
+		dsh.register( "battle", new BattleSystem() );
 	}
 
 	public void update()
 	{
-		if( lr.debug != this.debug )
-		{
-			lr.debug = this.debug;
-		}
-		synchronized( this )
-		{
-			time += 1;
-			if( time % 10 == 0 )
-			{
-				map.updateAutoTileState();
-				if( lr.queue.size() == 0 )
-				{
-					for( TileEvent e : map.events )
-					{
-						String name = e.toString();
-						LuaInterface.prepare( e );
-						lr.add( name, e.code );
-						lr.run( name );
-						lr.run( "ontick" );
-					}
-				}
-			}
-			
-			if( gui.elestack.size() == 0 )
-			{
-				if( k.space )
-				{
-					k.space = false;
-					TileEvent te = map.getEvent( player.xTile + player.facing.x, player.yTile + player.facing.y );
-					if( te != null )
-					{
-						String name = te.toString();
-						LuaInterface.prepare( te );
-						lr.add( name, te.code );
-						lr.run( name );
-						lr.run( "onenter" );
-					}
-				}
-				if( k.up || k.w )
-				{
-					player.move( Face.NORTH );
-				}
-				if( k.left || k.a )
-				{
-					player.move( Face.WEST );
-				}
-				if( k.down || k.s )
-				{
-					player.move( Face.SOUTH );
-				}
-				if( k.right || k.d )
-				{
-					player.move( Face.EAST );
-				}
-				if( k.n )
-				{
-					night = !night;
-					k.n = false;
-				}
-			}
-			
-			map.update( time, mos );
-			
-			if( opacity != destOpac )
-			{
-				if( Math.abs( opacity - destOpac ) < Math.abs( deltaOpac ) )
-				{
-					opacity = destOpac;
-					deltaOpac = 0;
-				}
-				else
-				{
-					opacity += deltaOpac;
-				}
-			}
-			
-			Graphics2D g2 = buffer.createGraphics();
-			//BEGIN DRAW
-			
-			int bw = buffer.getWidth();
-			int bh = buffer.getHeight();
-			
-			g2.setColor( Color.WHITE );
-			g2.fillRect( 0, 0, bw, bh );
-			
-			int camx = Math.min( Math.max( player.xScreen + map.tileSize/2, bw / 2 ), (map.width*map.tileSize)-bw/2 );
-			int camy = Math.min( Math.max( player.yScreen + map.tileSize/2, bh / 2 ), (map.height*map.tileSize)-bh/2 );
-			int tx = -camx + bw / 2;
-			int ty = -camy + bh / 2;
-			g2.translate( tx, ty );
-			map.render( g2, mos, night );
-			g2.translate( -tx, -ty );
-			
-			g2.setColor( new Color( screenr/255f, screeng/255f, screenb/255f, DMath.bound( opacity, 0, 1 ) ) );
-			g2.fillRect( 0, 0, bw, bh );
-			
-			gui.render( g2, k, bw, bh );
-			
-			//END DRAW
-			g2.dispose();
-			drawImage( buffer, 0, 0, getWidth(), getHeight(), 0, 0, bw, bh );
-			g.drawString( "X: " + player.xTile + ", Y: " + player.yTile, 20, 20 );
-		}
-	}
-	
-	public void fadeTo( int r, int g, int b, float opac, float speed )
-	{
-		this.screenr = r;
-		this.screeng = g;
-		this.screenb = b;
-		this.deltaOpac = speed * (opac > this.opacity ? 1 : -1);
-		this.destOpac = opac;
-	}
-	
-	public void onMapLoad( Map m )
-	{
-		for( TileEvent e : m.events )
-		{
-			String name = e.toString();
-			LuaInterface.prepare( e );
-			lr.add( name, e.code );
-			lr.run( name );
-			lr.run( "onload" );
-		}
-		setNight();
+		g2 = buffer.createGraphics();
+		//BEGIN DRAW
+		
+		int bw = buffer.getWidth();
+		int bh = buffer.getHeight();
+		
+		dsh.update( this );
+		
+		g2.dispose();
+		drawImage( buffer, 0, 0, getWidth(), getHeight(), 0, 0, bw, bh );
 	}
 	
 	public void createBuffer()
@@ -254,58 +101,5 @@ public class RunMonster extends Graphics2DRenderer implements TileArriveListener
 			
 		}
 		
-	}
-
-	public void loadMap( String mapname, int x, int y, String face ) throws IOException, DocumentException
-	{
-		map = maps.get( mapname );
-		
-		Tileset tc = tilesets.get( map.configFile );
-		if( tc == null )
-		{
-			tc = MapFileHelper.loadTileConfig( new File( "tileconfigs/" + map.configFile ) );
-			tilesets.put( map.configFile, tc );
-		}
-		map.setTileset( tc );
-		
-		map.prepareAutoTilesState();
-		
-		player.teleport( map, x, y, Face.getByName( face ) );
-		
-		onMapLoad( map );
-	}
-	
-	public void setNight()
-	{
-		@SuppressWarnings("deprecation")
-		int hour = new Date( System.currentTimeMillis() ).getHours();
-		night = hour <= 6 || hour >= 20;
-	}
-
-	public void onMapObjectArrive( MapObject mo ) 
-	{
-		if( debug )
-		{
-			System.out.println( "onMapObject arrive: X:" + mo.xTile + ", Y: " + mo.yTile );
-		}
-		TileEvent te = map.getEvent( mo.xTile, mo.yTile );
-		if( te != null && mo == player )
-		{
-			LuaInterface.prepare( te );
-			lr.run( te.toString() );
-			lr.run( "onstep" );		
-		}
-		if( mo == player )
-		{
-			for( int i = 0; i < map.events.size(); i++ )
-			{
-				TileEvent e = map.events.get( i );
-				String name = e.toString();
-				LuaInterface.prepare( e );
-				lr.add( name, e.code );
-				lr.run( name );
-				lr.run( "onmove" );
-			} 
-		}
 	}
 }
