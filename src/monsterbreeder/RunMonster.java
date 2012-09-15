@@ -36,8 +36,8 @@ public class RunMonster extends Graphics2DRenderer
 	HashMap<String, String> dataStore = new HashMap<String, String>();
 	
 	BufferedImage buffer;
-	int bufferx = 400;
-	int buffery = 300;
+	int bufferx = 200;
+	int buffery = 150;
 	
 	DScreenHandler<RunMonster> dsh;
 	
@@ -94,7 +94,7 @@ public class RunMonster extends Graphics2DRenderer
 
 		public void componentResized( ComponentEvent e ) 
 		{
-			createBuffer();
+			//createBuffer();
 		}
 
 		public void componentShown(ComponentEvent arg0) {

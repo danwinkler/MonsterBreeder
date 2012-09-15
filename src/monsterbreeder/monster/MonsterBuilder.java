@@ -38,6 +38,8 @@ public class MonsterBuilder
 		
 		fillChildren( m, ps, m.body, m.body.pos, r );
 		
+		m.moves[0] = Move.PUNCH;
+		
 		return m;
 	}
 	

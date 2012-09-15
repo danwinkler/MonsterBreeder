@@ -11,12 +11,12 @@
 				<allow>head</allow>
 			</attach>
 		</attaches>
-		<front>monster/images/wormbodyfront.png</front>
+		<front>monster/images/wormbodyfront.png</front><rear>monster/images/wormbodyrear.png</rear>
 		<base>
 			<x>0</x>
 			<y>0</y>
 			<z>0</z></base>
-	</part>
+		</part>
 	<part>
 		<name>simplehead</name>
 		<type>head</type>

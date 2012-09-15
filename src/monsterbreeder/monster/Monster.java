@@ -35,6 +35,10 @@ public class Monster
 	public Move[] moves = new Move[4];
 	public int maxhp = 100;
 	public int hp = maxhp;
+	public int accuracy = 95;
+	public int attack = 10;
+	public int defense = 10;
+	public int speed = 10;
 	
 	public String name = "No Entry";
 	
@@ -59,11 +63,52 @@ public class Monster
 
 		public void renderFront( Graphics2D g, BufferedImageOp imageFilter )
 		{
-			AffineTransform at = g.getTransform();
-			g.translate( pos.x, pos.y );
-			g.drawImage( imageFilter.filter( front, null ), -front.getWidth()/2, -front.getHeight()/2, null );
-			g.setTransform( at );
+			if( front != null )
+			{
+				AffineTransform at = g.getTransform();
+				g.translate( pos.x, pos.y );
+				g.drawImage( imageFilter.filter( front, null ), -front.getWidth()/2, -front.getHeight()/2, null );
+				g.setTransform( at );
+			}
 		}
+		
+		public void renderRear( Graphics2D g, BufferedImageOp imageFilter )
+		{
+			if( rear != null )
+			{
+				AffineTransform at = g.getTransform();
+				g.translate( pos.x, pos.y );
+				g.drawImage( imageFilter.filter( rear, null ), -rear.getWidth()/2, -rear.getHeight()/2, null );
+				g.setTransform( at );
+			}
+		}
+	}
+	
+	public BufferedImage getRear()
+	{
+		if( rear == null )
+		{
+			BufferedImageOp imageFilter = new ColorTintFilter( new Color( type.r, type.g, type.b ), .5f );
+			rear = DGraphics.createBufferedImage( 64, 64 );
+			Graphics2D g = rear.createGraphics();
+			g.translate( 32, 32 );
+			ArrayList<Part> parts = new ArrayList<Part>();
+			parts.add( body );
+			parts.addAll( body.getParts() );
+			Collections.sort( parts, new Comparator<Part>() {
+				public int compare( Part p1, Part p2 )
+				{
+					return p1.pos.z > p2.pos.z ? 1 : -1;
+				} 
+			});
+			
+			for( Part p : parts )
+			{
+				p.renderRear( g, imageFilter );
+			}
+			g.dispose();
+		}
+		return rear;
 	}
 	
 	public BufferedImage getFront()
@@ -91,5 +136,16 @@ public class Monster
 			g.dispose();
 		}
 		return front;
+	}
+	
+	public String[] getMoveNames()
+	{
+		String[] ms = new String[4];
+		for( int i = 0; i < 4; i++ )
+		{
+			if( moves[i] != null )
+				ms[i] = moves[i].name();
+		}
+		return ms;
 	}
 }

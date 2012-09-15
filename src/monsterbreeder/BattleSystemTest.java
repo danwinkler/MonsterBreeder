@@ -14,14 +14,14 @@ public class BattleSystemTest
 			{
 				try
 				{
-					Thread.sleep( 500 );
+					Thread.sleep( 1000 );
 				} catch( InterruptedException e )
 				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				rm.dsh.activate( "battle" );
 				((BattleSystem)rm.dsh.get( "battle" )).start( MonsterBuilder.generateMonster( new Random().nextInt() ), MonsterBuilder.generateMonster( new Random().nextInt() ) );
+				rm.dsh.activate( "battle" );
 			} } ).start();
 		rm.begin();
 	}

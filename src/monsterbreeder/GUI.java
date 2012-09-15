@@ -1,13 +1,33 @@
 package monsterbreeder;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics2D;
+import java.io.File;
+import java.io.IOException;
 import java.util.Stack;
 
 import com.phyloa.dlib.util.KeyHandler;
 
 public class GUI 
 {
+	static Font font;
+	static Font font8;
+	
+	static {
+		try {
+			font = Font.createFont( Font.TRUETYPE_FONT, new File( "04B_03__.TTF" ) );
+			font8 = font.deriveFont( 8.f );
+		} catch (FontFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	boolean active = false;
 	Stack<GUIElement> elestack = new Stack<GUIElement>();
 	
@@ -16,11 +36,16 @@ public class GUI
 		for( int i = 0; i < elestack.size(); i++ )
 		{
 			GUIElement ge = elestack.get( i );
-			ge.render( g, k, width, height );
+			ge.render( g, width, height );
 		}
 		if( elestack.size() > 0 && !elestack.peek().alive )
 		{
 			elestack.pop();
+		}
+		active = elestack.size() > 0;
+		if( active )
+		{
+			elestack.peek().update( k );
 		}
 	}
 	
@@ -38,21 +63,28 @@ public class GUI
 			this.text = text;
 		}
 		
-		public void render( Graphics2D g, KeyHandler k, int width, int height )
+		public void update( KeyHandler k )
 		{
-			if( k.space && elestack.peek() == this )
+			if( k.space )
 			{
 				this.alive = false;
 				k.space = false;
 			}
+		}
+		
+		public void render( Graphics2D g,  int width, int height )
+		{
+			g.setFont( font8 );
 			
 			g.setColor( Color.white );
-			g.fillRect( 10, height-100, width-30, 70 );
+			g.fillRoundRect( 10, height-35, width-20, 25, 3, 3 );
 			g.setColor( Color.black );
+			g.drawRoundRect( 10, height-35, width-20, 25, 3, 3 );
+			
 			String[] lines = text.split( "\n" );
 			for( int i = 0; i < lines.length; i++ )
 			{
-				g.drawString( lines[i], 20, height - 80 + i * 12 );
+				g.drawString( lines[i], 20, height - 25 + i * 8 );
 			}
 		}
 	}
@@ -65,63 +97,111 @@ public class GUI
 		
 		public SelectBox( String text, String[] choices )
 		{
+			this( choices );
 			this.text = text;
+		}
+		
+		public SelectBox( String[] choices )
+		{
 			this.choices = choices;
 		}
 		
-		public void render( Graphics2D g, KeyHandler k, int width, int height )
+		public void update( KeyHandler k )
 		{
-			if( k.space && elestack.peek() == this )
+			if( k.space )
 			{
 				this.alive = false;
 				k.space = false;
 			}
-			if( k.down || k.s )
+			
+			int lastChoice = choice;
+			if( k.up )
 			{
-				if( choice < choices.length-1 )
+				if( choice > 1 )
 				{
-					choice++;
-				}
-				k.down = false;
-				k.s = false;
-			}
-			if( k.up || k.w )
-			{
-				if( choice > 0 )
-				{
-					choice--;
+					choice -= 2;
 				}
 				k.up = false;
-				k.w = false;
 			}
-			
-			g.setColor( Color.white );
-			g.fillRect( 10, height-100, width-30, 70 );
-			g.setColor( Color.black );
-			String[] lines = text.split( "\n" );
-			for( int i = 0; i < lines.length; i++ )
+			if( k.down )
 			{
-				g.drawString( lines[i], 20, height - 80 + i * 12 );
+				if( choice < 2 )
+				{
+					choice += 2;
+				}
+				k.down = false;
 			}
-			for( int i = 0; i < choices.length; i++ )
+			if( k.left )
 			{
-				if( i != choice )
+				if( choice % 2 == 1 )
 				{
-					g.setColor( Color.GRAY );
+					choice -= 1;
 				}
-				else
+				k.left = false;
+			}
+			if( k.right )
+			{
+				if( choice % 2 == 0 )
 				{
-					g.setColor( Color.BLACK );
+					choice += 1;
 				}
-				g.drawString( choices[i], width - 150, height - 80 + i * 12 );
+				k.right = false;
+			}
+			if( choice >= choices.length || choices[choice] == null )
+			{
+				choice = lastChoice;
 			}
 		}
 		
+		public void render( Graphics2D g, int width, int height )
+		{
+			g.setFont( font8 );
+			
+			g.setColor( Color.white );
+			g.fillRoundRect( 10, height-35, width-20, 25, 3, 3 );
+			g.setColor( Color.black );
+			g.drawRoundRect( 10, height-35, width-20, 25, 3, 3 );
+			
+			for( int i = 0; i < choices.length; i++ )
+			{
+				if( choices[i] == null )
+				{
+					continue;
+				}
+				int xx = 0, yy = 0;
+				switch( i )
+				{
+				case 0:
+					xx = 20;
+					yy = height - 25;
+					break;
+				case 1:
+					xx = 100;
+					yy = height - 25;
+					break;
+				case 2:
+					xx = 20;
+					yy = height - 17;
+					break;
+				case 3:
+					xx = 100;
+					yy = height - 17;
+					break;
+				}
+				g.drawString( choices[i], xx, yy );
+				if( i == choice )
+				{
+					g.drawLine( xx, yy+1, xx + 20, yy+1 );
+				}
+			}
+			
+		}		
 	}
 	
 	abstract class GUIElement
 	{
 		boolean alive = true;
-		public abstract void render( Graphics2D g, KeyHandler k, int width, int height );
+		public abstract void render( Graphics2D g, int width, int height );
+		public abstract void update( KeyHandler k );
 	}
 }
