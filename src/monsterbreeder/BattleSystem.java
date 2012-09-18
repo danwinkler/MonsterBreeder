@@ -26,11 +26,25 @@ public class BattleSystem implements DScreen<RunMonster>
 	
 	GUI gui;
 	
+	BattleThread bt;
+	
+	RunMonster rm;
+	
+	public BattleSystem( RunMonster rm )
+	{
+		this.rm = rm;
+	}
+	
 	public void start( Monster m1, Monster m2 )
 	{
 		this.m1 = m1;
 		this.m2 = m2;
-		new Thread( new BattleThread() ).start();
+		if( bt != null )
+		{
+			bt.battling = false;
+		}
+		bt = new BattleThread();
+		new Thread( bt ).start();
 		gui = new GUI();
 	}
 	
@@ -118,6 +132,7 @@ public class BattleSystem implements DScreen<RunMonster>
 						
 						//Monster1 attack
 						int moves = b1 == m1 ? playerAttack : enemyChooseMove();
+						showMessage( (b1 == m1 ? "" : "Enemy ") + b1.name + " used " + b1.moves[moves].getName() + "!" );
 						String message = b1.moves[moves].use( b1, b2, BattleSystem.this, b1 == m1 );
 						showMessage( message );
 						
@@ -134,6 +149,7 @@ public class BattleSystem implements DScreen<RunMonster>
 						
 						//Monster2 attack
 						moves = b2 == m1 ? playerAttack : enemyChooseMove();
+						showMessage( (b2 == m1 ? "" : "Enemy ") + b2.name + " used " + b2.moves[moves].getName() + "!" );
 						message = b2.moves[moves].use( b2, b1, BattleSystem.this, b2 == m1 );
 						showMessage( message );
 						
@@ -161,11 +177,14 @@ public class BattleSystem implements DScreen<RunMonster>
 					break;
 				case LOSS:
 					showMessage( "You lost the battle." );
+					battling = false;
 					break;
 				case WIN:
 					showMessage( "You won the battle!" );
+					battling = false;
 				}
 			}
+			rm.dsh.activate( "world" );
 		}
 		
 		public int playerChooseMove()

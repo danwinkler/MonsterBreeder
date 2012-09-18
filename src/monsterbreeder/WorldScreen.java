@@ -63,7 +63,7 @@ public class WorldScreen implements DScreen<RunMonster>, TileArriveListener
 		
 		LuaInterface.setup( this );
 		
-		player = new MapObject( map, TextureHandler.get( "Characters/001-Fighter01.png" ), 0, 0 );
+		player = new MapObject( map, TextureHandler.get( "Characters/162-Small04.png" ), 0, 0 );
 		player.addTileArriveListener( this );
 		
 		try {
@@ -118,6 +118,7 @@ public class WorldScreen implements DScreen<RunMonster>, TileArriveListener
 					TileEvent te = map.getEvent( player.xTile + player.facing.x, player.yTile + player.facing.y );
 					if( te != null )
 					{
+						te.facing = player.facing.getOpposite();
 						String name = te.toString();
 						LuaInterface.prepare( te );
 						lr.add( name, te.code );

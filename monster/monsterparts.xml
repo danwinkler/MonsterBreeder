@@ -10,8 +10,22 @@
 				<z>-13</z>
 				<allow>head</allow>
 			</attach>
+			<attach>
+				<x>-6</x>
+				<y>-4</y>
+				<z>-13</z>
+				<allow>special</allow>
+				<group>1</group></attach>
+			<attach>
+				<x>2</x>
+				<y>-4</y>
+				<z>-13</z>
+				<allow>special</allow>
+				<group>1</group>
+				<mirror>x</mirror>
+			</attach>
 		</attaches>
-		<front>monster/images/wormbodyfront.png</front><rear>monster/images/wormbodyrear.png</rear>
+		<front>wormbodyfront.png</front><rear>wormbodyrear.png</rear>
 		<base>
 			<x>0</x>
 			<y>0</y>
@@ -25,6 +39,23 @@
 			<y>0</y>
 			<z>0</z>
 		</base>
-		<front>monster/images/head1front.png</front>
+		<front>head1front.png</front>
 	</part>
+	<part>
+		<name>horn1</name>
+		<type>special</type>
+		<front>horn1.png</front>
+		<rear>horn1rear.png</rear><base>
+			<x>0</x>
+			<y>0</y>
+			<z>0</z></base>
+		<allowmoves>Horn Drill,</allowmoves>
+		</part>
+	<part>
+		<name>emptyspecial</name>
+		<type>special</type>
+		<base>
+			<x>0</x>
+			<y>0</y>
+			<z>0</z></base></part>
 </parts>

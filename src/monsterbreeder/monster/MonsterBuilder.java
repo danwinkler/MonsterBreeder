@@ -2,7 +2,9 @@ package monsterbreeder.monster;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
+import java.util.TreeSet;
 
 import javax.vecmath.Point3i;
 
@@ -15,8 +17,11 @@ public class MonsterBuilder
 {
 	static ArrayList<PartSpec> parts = new ArrayList<PartSpec>();
 	
+	static ArrayList<Move> tempAllowedMoves = new ArrayList<Move>();
+	
 	public static Monster generateMonster( int seed )
 	{
+		tempAllowedMoves.clear();
 		if( parts.size() == 0 )
 		{
 			try
@@ -34,11 +39,20 @@ public class MonsterBuilder
 		
 		ArrayList<PartSpec> bodies = getParts( PartType.BODY, m.type );
 		PartSpec ps = bodies.get( r.nextInt( bodies.size() ) );
-		m.body = ps.makePart( m );
+		m.body = ps.makePart( m, null );
 		
 		fillChildren( m, ps, m.body, m.body.pos, r );
 		
-		m.moves[0] = Move.PUNCH;
+		tempAllowedMoves.add( Move.PUNCH );
+		
+		for( int i = 0; i < 4; i++ )
+		{
+			m.moves[i] = tempAllowedMoves.remove( r.nextInt( tempAllowedMoves.size() ) );
+			if( tempAllowedMoves.size() == 0 )
+			{
+				break;
+			}
+		}
 		
 		return m;
 	}
@@ -51,10 +65,38 @@ public class MonsterBuilder
 			ArrayList<PartSpec> pss = getParts( as, m.type );
 			if( pss.size() > 0 )
 			{
-				PartSpec ps = pss.get( r.nextInt( pss.size() ) );
+				PartSpec ps = null;
+				if( as.group != null )
+				{
+					for( Part part : parent.parts )
+					{
+						if( as.group.equals( part.group ) )
+						{
+							ps = part.ps;
+						}
+					}
+				}
+				if( ps == null )
+				{
+					ps = pss.get( r.nextInt( pss.size() ) );
+				}
+				
+				//Fill moves
+				if( ps.allowMoves != null )
+				{
+					for( String move : ps.allowMoves )
+					{
+						Move mo = Move.getByName( move );
+						if( !tempAllowedMoves.contains( mo ) )
+						{
+							tempAllowedMoves.add( mo );
+						}
+					}
+				}
+				
 				Point3i p = new Point3i( pos );
 				p.add( as.p );
-				Part child = ps.makePart( m, p );
+				Part child = ps.makePart( m, p, as );
 				parent.parts.add( child );
 				fillChildren( m, ps, child, child.pos, r );
 			}
@@ -209,20 +251,31 @@ public class MonsterBuilder
 		public PartType type;
 		public Type[] allowType;
 		public Type[] disallowType;
+		public String[] allowMoves;
 		
-		public Part makePart( Monster m )
+		public Part makePart( Monster m, AttachSpec as )
 		{
 			Part p = m.new Part();
 			p.front = front;
 			p.side = side;
 			p.rear = rear;
 			p.pos = new Point3i( base );
+			p.ps = this;
+			if( as != null )
+			{
+				p.flipX = as.flipX;
+				p.flipY = as.flipY;
+				p.flipZ = as.flipZ;
+				p.group = as.group;
+				p.as = as;
+			}
+			
 			return p;
 		}
 		
-		public Part makePart( Monster m, Point3i pos )
+		public Part makePart( Monster m, Point3i pos, AttachSpec as )
 		{
-			Part p = makePart( m );
+			Part p = makePart( m, as );
 			p.pos.add( pos );
 			return p;
 		}
@@ -230,7 +283,7 @@ public class MonsterBuilder
 	
 	public static class AttachSpec
 	{
-		public int group = -1;
+		public String group = null;
 		public PartType[] allowPartType;
 		public PartType[] disallowPartType;
 		public Point3i p;

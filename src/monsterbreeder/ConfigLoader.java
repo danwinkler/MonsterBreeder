@@ -22,6 +22,8 @@ import com.danwink.java.rpg.MapFileHelper;
 
 public class ConfigLoader 
 {
+	static String monImgPath = "monster/images/";
+	
 	public static void loadConfig( WorldScreen rm, String file ) throws DocumentException, IOException
 	{
 		SAXReader reader = new SAXReader();
@@ -61,19 +63,25 @@ public class ConfigLoader
 			Node front = n.selectSingleNode( "front" );
 			if( front != null )
 			{
-				p.front = TextureHandler.get( front.getText() );
+				p.front = TextureHandler.get( monImgPath + front.getText() );
 			}
 			
 			Node side = n.selectSingleNode( "side" );
 			if( side != null )
 			{
-				p.side = TextureHandler.get( side.getText() );
+				p.side = TextureHandler.get( monImgPath + side.getText() );
 			}
 			
 			Node rear = n.selectSingleNode( "rear" );
 			if( rear != null )
 			{
-				p.rear = TextureHandler.get( rear.getText() );
+				p.rear = TextureHandler.get( monImgPath + rear.getText() );
+			}
+			
+			Node allowMoves = n.selectSingleNode( "allowmoves" );
+			if( allowMoves != null )
+			{
+				p.allowMoves = allowMoves.getText().split( "," );
 			}
 			
 			Node attachesNode = n.selectSingleNode( "attaches" );
@@ -90,6 +98,19 @@ public class ConfigLoader
 						a.p.x = Integer.parseInt( m.selectSingleNode( "x" ).getText() );
 						a.p.y = Integer.parseInt( m.selectSingleNode( "y" ).getText() );
 						a.p.z = Integer.parseInt( m.selectSingleNode( "z" ).getText() );
+						Node mirror = m.selectSingleNode( "mirror" );
+						if( mirror != null )
+						{
+							String flip = mirror.getText().toLowerCase();
+							a.flipX = flip.contains( "x" );
+							a.flipY = flip.contains( "y" );
+							a.flipZ = flip.contains( "z" );
+						}
+						Node group = m.selectSingleNode( "group" );
+						if( group != null )
+						{
+							a.group = group.getText();
+						}
 						Node allowNode = m.selectSingleNode( "allow" );
 						if( allowNode != null )
 						{

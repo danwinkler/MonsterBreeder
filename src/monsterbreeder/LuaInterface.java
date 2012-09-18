@@ -2,11 +2,13 @@ package monsterbreeder;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Random;
 
 import javax.script.ScriptException;
 
 import monsterbreeder.GUI.SelectBox;
 import monsterbreeder.GUI.Textbox;
+import monsterbreeder.monster.MonsterBuilder;
 
 import org.dom4j.DocumentException;
 
@@ -263,6 +265,27 @@ public class LuaInterface
 	public static int getPlayerY()
 	{
 		return ws.player.yTile;
+	}
+	
+	public static void startBattle( String key )
+	{
+		if( key.equals( "random" ) )
+		{
+			ws.rm.bs.start( MonsterBuilder.generateMonster( new Random().nextInt() ), MonsterBuilder.generateMonster( new Random().nextInt() ) );
+			ws.rm.dsh.activate( "battle" );
+		}
+	}
+	
+	public static void sleep( int time )
+	{
+		try
+		{
+			Thread.sleep( time );
+		} catch( InterruptedException e )
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void prepare( TileEvent te )

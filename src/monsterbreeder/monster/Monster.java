@@ -15,6 +15,8 @@ import javax.vecmath.Point3i;
 
 import monsterbreeder.ColorTintFilter;
 import monsterbreeder.ConfigLoader;
+import monsterbreeder.monster.MonsterBuilder.AttachSpec;
+import monsterbreeder.monster.MonsterBuilder.PartSpec;
 
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
@@ -46,9 +48,11 @@ public class Monster
 	{
 		Point3i pos;
 		ArrayList<Part> parts = new ArrayList<Part>();
-		public BufferedImage front;
-		public BufferedImage side;
-		public BufferedImage rear;
+		public BufferedImage front, side, rear;
+		public boolean flipX, flipY, flipZ;
+		String group;
+		PartSpec ps;
+		AttachSpec as;
 		
 		public ArrayList<Part> getParts()
 		{
@@ -61,54 +65,35 @@ public class Monster
 			return ret;
 		}
 
-		public void renderFront( Graphics2D g, BufferedImageOp imageFilter )
+		public void renderFront( Graphics2D g, BufferedImageOp imageFilter, Part p )
 		{
 			if( front != null )
 			{
 				AffineTransform at = g.getTransform();
 				g.translate( pos.x, pos.y );
-				g.drawImage( imageFilter.filter( front, null ), -front.getWidth()/2, -front.getHeight()/2, null );
+				g.drawImage( imageFilter.filter( front, null ), -front.getWidth()/2 * (p.flipX ? -1 : 1), -front.getHeight()/2 * (p.flipY ? -1 : 1), 
+																front.getWidth()/2 * (p.flipX ? -1 : 1), front.getHeight()/2 * (p.flipY ? -1 : 1),
+																0, 0, 
+																front.getWidth(), front.getHeight(), 
+																null );
 				g.setTransform( at );
 			}
 		}
 		
-		public void renderRear( Graphics2D g, BufferedImageOp imageFilter )
+		public void renderRear( Graphics2D g, BufferedImageOp imageFilter, Part p )
 		{
 			if( rear != null )
 			{
 				AffineTransform at = g.getTransform();
-				g.translate( pos.x, pos.y );
-				g.drawImage( imageFilter.filter( rear, null ), -rear.getWidth()/2, -rear.getHeight()/2, null );
+				g.translate( -pos.x, pos.y );
+				g.drawImage( imageFilter.filter( rear, null ), -rear.getWidth()/2 * (p.flipX ? -1 : 1), -rear.getHeight()/2 * (p.flipY ? -1 : 1), 
+																rear.getWidth()/2 * (p.flipX ? -1 : 1), rear.getHeight()/2 * (p.flipY ? -1 : 1),
+																0, 0, 
+																rear.getWidth(), rear.getHeight(), 
+																null );
 				g.setTransform( at );
 			}
 		}
-	}
-	
-	public BufferedImage getRear()
-	{
-		if( rear == null )
-		{
-			BufferedImageOp imageFilter = new ColorTintFilter( new Color( type.r, type.g, type.b ), .5f );
-			rear = DGraphics.createBufferedImage( 64, 64 );
-			Graphics2D g = rear.createGraphics();
-			g.translate( 32, 32 );
-			ArrayList<Part> parts = new ArrayList<Part>();
-			parts.add( body );
-			parts.addAll( body.getParts() );
-			Collections.sort( parts, new Comparator<Part>() {
-				public int compare( Part p1, Part p2 )
-				{
-					return p1.pos.z > p2.pos.z ? 1 : -1;
-				} 
-			});
-			
-			for( Part p : parts )
-			{
-				p.renderRear( g, imageFilter );
-			}
-			g.dispose();
-		}
-		return rear;
 	}
 	
 	public BufferedImage getFront()
@@ -131,11 +116,38 @@ public class Monster
 			
 			for( Part p : parts )
 			{
-				p.renderFront( g, imageFilter );
+				p.renderFront( g, imageFilter, p );
 			}
 			g.dispose();
 		}
 		return front;
+	}
+	
+	public BufferedImage getRear()
+	{
+		if( rear == null )
+		{
+			BufferedImageOp imageFilter = new ColorTintFilter( new Color( type.r, type.g, type.b ), .5f );
+			rear = DGraphics.createBufferedImage( 64, 64 );
+			Graphics2D g = rear.createGraphics();
+			g.translate( 32, 32 );
+			ArrayList<Part> parts = new ArrayList<Part>();
+			parts.add( body );
+			parts.addAll( body.getParts() );
+			Collections.sort( parts, new Comparator<Part>() {
+				public int compare( Part p1, Part p2 )
+				{
+					return p1.pos.z > p2.pos.z ? 1 : -1;
+				} 
+			});
+			
+			for( Part p : parts )
+			{
+				p.renderRear( g, imageFilter, p );
+			}
+			g.dispose();
+		}
+		return rear;
 	}
 	
 	public String[] getMoveNames()
@@ -144,7 +156,7 @@ public class Monster
 		for( int i = 0; i < 4; i++ )
 		{
 			if( moves[i] != null )
-				ms[i] = moves[i].name();
+				ms[i] = moves[i].getName();
 		}
 		return ms;
 	}

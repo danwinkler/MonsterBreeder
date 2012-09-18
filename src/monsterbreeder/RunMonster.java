@@ -43,6 +43,9 @@ public class RunMonster extends Graphics2DRenderer
 	
 	Graphics2D g2;
 	
+	WorldScreen ws;
+	BattleSystem bs;
+	
 	public void initialize()
 	{
 		size( 800, 600 );
@@ -51,8 +54,10 @@ public class RunMonster extends Graphics2DRenderer
 		this.container.addComponentListener( new RunMonsterListener() );
 		
 		dsh = new DScreenHandler<RunMonster>();
-		dsh.register( "world", new WorldScreen( this ) );
-		dsh.register( "battle", new BattleSystem() );
+		ws = new WorldScreen( this );
+		bs = new BattleSystem( this );
+		dsh.register( "world", ws );
+		dsh.register( "battle", bs );
 	}
 
 	public void update()
