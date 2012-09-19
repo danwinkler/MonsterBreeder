@@ -2,6 +2,6 @@
 <game>
 	<maps>
 		<map>insideislandhome1</map>
-		<map>outsideisland1</map>
+		<map>path</map>
 		<map>16housetest</map></maps>
-	<firstmap x="8" y="8">16housetest</firstmap></game>
+	<firstmap x="8" y="8">path</firstmap></game>

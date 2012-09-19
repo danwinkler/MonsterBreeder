@@ -6,23 +6,15 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Random;
-
 import javax.vecmath.Point3i;
 
 import monsterbreeder.ColorTintFilter;
-import monsterbreeder.ConfigLoader;
 import monsterbreeder.monster.MonsterBuilder.AttachSpec;
 import monsterbreeder.monster.MonsterBuilder.PartSpec;
 
-import org.dom4j.DocumentException;
-import org.dom4j.Node;
-
 import com.phyloa.dlib.util.DGraphics;
-import com.phyloa.dlib.util.DMath;
 
 public class Monster 
 {
